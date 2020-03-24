@@ -1,49 +1,261 @@
-use juniper::RootNode;
+use juniper::*;
+use std::sync::Arc;
 use std::time::Instant;
 
-pub struct QueryRoot;
+pub struct ChatData {
+    pub id: String,
+    pub created_at: String,
+    pub title: String,
+    pub caption: String,
+    pub creator_user_id: String,
+    pub state: String,
+}
+
+pub struct UserData {
+    pub id: String,
+    pub is_operator: bool,
+    pub phone: u64,
+    pub join_date: String,
+    pub state: String,
+}
+
+pub struct ProfileData {
+    pub first_name: String,
+    pub last_name: String,
+    pub city: Option<String>,
+    pub job_title: Option<String>,
+    pub email: String,
+}
+
+pub struct MessageData {
+    pub id: String,
+    pub user_id: String,
+    pub timestamp: String,
+    pub edited: bool,
+    pub order: i32,
+    pub message: String,
+}
+
+lazy_static::lazy_static! {
+    pub static ref CHAT: ChatData = ChatData {
+        id: "1".to_string(),
+        created_at: "today".to_string(),
+        title: "chat".to_string(),
+        caption: "asdasd".to_string(),
+        creator_user_id: "123".to_string(),
+        state: "ACTIVE".to_string(),
+    };
+
+    pub static ref USER: UserData = UserData {
+        id: "123".to_string(),
+        is_operator: false,
+        phone: 79_123_273_936,
+        join_date: "today".to_string(),
+        state: "ACTIVE".to_string(),
+    };
+
+    pub static ref PROFILE: ProfileData = ProfileData {
+        first_name: "Ivan".to_string(),
+        last_name: "Plesskih".to_string(),
+        city: Some("Che".to_string()),
+        job_title: Some("progr".to_string()),
+        email: "asd@qwe.ru".to_string(),
+    };
+
+    pub static ref MESSAGE: MessageData = MessageData {
+        id: "456".to_string(),
+        user_id: "123".to_string(),
+        timestamp: "today".to_string(),
+        edited: false,
+        order: 123,
+        message: "Hello, world!".to_string(),
+    };
+}
+
+pub struct Chat;
 
 #[juniper::graphql_object]
-impl QueryRoot {
-    async fn value_i32(&self) -> i32 {
-        999
+impl Chat {
+    pub async fn id(&self) -> ID {
+        ID::from(CHAT.id.clone())
     }
 
-    async fn obj(&self) -> MyObj {
-        MyObj
+    pub async fn messages(&self) -> Vec<Message> {
+        let mut res = vec![];
+        for _ in 0..30 {
+            res.push(Message);
+        }
+        res
+    }
+
+    pub async fn users(&self) -> Vec<User> {
+        let mut res = vec![];
+        for _ in 0..5 {
+            res.push(User);
+        }
+        res
+    }
+
+    pub async fn creator(&self) -> User {
+        User
+    }
+
+    #[graphql(name = "created_at")]
+    pub async fn created_at(&self) -> &String {
+        &CHAT.created_at
+    }
+    pub async fn title(&self) -> &String {
+        &CHAT.title
+    }
+    pub async fn caption(&self) -> &String {
+        &CHAT.caption
+    }
+    pub async fn state(&self) -> &String {
+        &CHAT.state
     }
 }
 
-pub struct MyObj;
+pub struct Message;
 
 #[juniper::graphql_object]
-impl MyObj {
-    async fn value_i32(&self) -> i32 {
-        999
+impl Message {
+    pub async fn id(&self) -> ID {
+        ID::from(MESSAGE.id.clone())
     }
 
-    async fn value_list(&self) -> Vec<i32> {
-        vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
+    pub async fn user(&self) -> User {
+        User
+    }
+    pub async fn timestamp(&self) -> &String {
+        &MESSAGE.timestamp
+    }
+    pub async fn message(&self) -> &String {
+        &MESSAGE.message
+    }
+    pub async fn order(&self) -> i32 {
+        MESSAGE.order
+    }
+    pub async fn edited(&self) -> bool {
+        MESSAGE.edited
     }
 }
+
+pub struct User;
+
+#[juniper::graphql_object]
+impl User {
+    pub async fn id(&self) -> ID {
+        ID::from(USER.id.clone())
+    }
+
+    pub async fn profile(&self) -> Option<UserProfile> {
+        Some(UserProfile)
+    }
+
+    #[graphql(name = "is_operator")]
+    pub async fn is_operator(&self) -> bool {
+        USER.is_operator
+    }
+    pub async fn phone(&self) -> String {
+        USER.phone.to_string()
+    }
+    #[graphql(name = "join_date")]
+    pub async fn join_date(&self) -> &String {
+        &USER.join_date
+    }
+    pub async fn state(&self) -> &String {
+        &USER.state
+    }
+}
+
+pub struct UserProfile;
+
+#[juniper::graphql_object]
+impl UserProfile {
+    pub async fn email(&self) -> &String {
+        &PROFILE.email
+    }
+    #[graphql(name = "first_name")]
+    pub async fn first_name(&self) -> &String {
+        &PROFILE.first_name
+    }
+    #[graphql(name = "last_name")]
+    pub async fn last_name(&self) -> &String {
+        &PROFILE.last_name
+    }
+    #[graphql(name = "job_title")]
+    pub async fn job_title(&self) -> &Option<String> {
+        &PROFILE.job_title
+    }
+    pub async fn city(&self) -> &Option<String> {
+        &PROFILE.city
+    }
+}
+
+pub struct Query;
+
+#[juniper::graphql_object]
+impl Query {
+    async fn chats(&self) -> Vec<Chat> {
+        let mut res = vec![];
+        for _ in 0..30 {
+            res.push(Chat);
+        }
+        res
+    }
+}
+
+pub const Q: &str = r#"
+fragment User on User {
+  id
+  is_operator
+  phone
+  join_date
+  state
+  profile {
+    email
+    first_name
+    last_name
+    job_title
+    city
+  }
+}
+
+{
+  chats {
+    id
+    created_at
+    title
+    caption
+    state
+    creator {
+      ...User
+    }
+    messages {
+      id
+      timestamp
+      edited
+      message
+      order
+    }
+    users {
+      ...User
+    }
+  }
+}
+"#;
 
 pub async fn run() {
     let s = Instant::now();
-    let schema = RootNode::new(
-        QueryRoot,
+    let schema = Arc::new(RootNode::new(
+        Query,
         juniper::EmptyMutation::new(),
         juniper::EmptySubscription::new(),
-    );
-    for _ in 0..100000i32 {
-        juniper::execute(
-            "{ valueI32 obj { valueI32 valueList } }",
-            None,
-            &schema,
-            &Default::default(),
-            &(),
-        )
-        .await
-        .unwrap();
+    ));
+    for _ in 0..500i32 {
+        juniper::execute(Q, None, &schema, &Default::default(), &())
+            .await
+            .unwrap();
     }
     println!("juniper: {} ms", s.elapsed().as_millis());
 }
