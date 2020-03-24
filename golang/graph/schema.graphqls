@@ -1,0 +1,13 @@
+directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
+    | FIELD_DEFINITION
+
+type Query {
+    valueI32: Int!
+    obj: MyObj!
+}
+
+type MyObj {
+    valueI32: Int! @goField(forceResolver: true)
+    valueList: [Int!]! @goField(forceResolver: true)
+    obj: MyObj! @goField(forceResolver: true)
+}

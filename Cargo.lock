@@ -43,9 +43,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql"
-version = "1.4.4"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6bff61c16502bef84ff44be5eb22eeb6e00b1a05db2ca099efdf2300dbe333ce"
+checksum = "ec9c72c17839ddbda8d87280ee1ed5e89dbc081cc36a604fcc9cab8583c1ae97"
 dependencies = [
  "Inflector",
  "anyhow",
@@ -58,8 +58,10 @@ dependencies = [
  "chrono",
  "fnv",
  "graphql-parser",
+ "itoa",
  "once_cell",
  "regex",
+ "ryu",
  "serde",
  "serde_derive",
  "serde_json",
@@ -70,9 +72,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql-derive"
-version = "1.4.4"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca15143b22ea7c87a0c2e312ba9061d42f1d09917e780844d5b0a9bd12544251"
+checksum = "a13554b2f4d199de0a6cfd2137e6c71cd91c12965fc5ada1178d816d80d3ecdf"
 dependencies = [
  "Inflector",
  "graphql-parser",
