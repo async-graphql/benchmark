@@ -1,4 +1,3 @@
-use async_std::task;
 use juniper::RootNode;
 use std::sync::Arc;
 use std::time::Instant;
@@ -7,11 +6,11 @@ pub struct QueryRoot;
 
 #[juniper::graphql_object]
 impl QueryRoot {
-    async fn value_i32(&self) -> i32 {
+    fn value_i32(&self) -> i32 {
         999
     }
 
-    async fn obj(&self) -> MyObj {
+    fn obj(&self) -> MyObj {
         MyObj
     }
 }
@@ -20,15 +19,15 @@ pub struct MyObj;
 
 #[juniper::graphql_object]
 impl MyObj {
-    async fn value_i32(&self) -> i32 {
+    fn value_i32(&self) -> i32 {
         999
     }
 
-    async fn value_list(&self) -> Vec<i32> {
-        vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
+    fn value_list(&self) -> &[i32] {
+        &[1, 2, 3, 4, 5, 6, 7, 8, 9]
     }
 
-    async fn obj(&self) -> MyObj {
+    fn obj(&self) -> MyObj {
         MyObj
     }
 }
@@ -44,8 +43,8 @@ pub async fn run() {
 
     for _ in 0..4 {
         let schema = schema.clone();
-        let handle = task::spawn(async move {
-            for _ in 0..100000i32 {
+        let handle = tokio::spawn(async move {
+            for _ in 0..10000i32 {
                 juniper::execute(
                     r#"
             {

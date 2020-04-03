@@ -1,5 +1,4 @@
 use async_graphql::*;
-use async_std::task;
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -28,8 +27,8 @@ impl MyObj {
     }
 
     #[field]
-    async fn value_list(&self) -> Vec<i32> {
-        vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
+    async fn value_list(&self) -> &[i32] {
+        &[1, 2, 3, 4, 5, 6, 7, 8, 9]
     }
 
     #[field]
@@ -45,10 +44,10 @@ pub async fn run() {
 
     for _ in 0..4 {
         let schema = schema.clone();
-        let handle = task::spawn(async move {
-            for _ in 0..100000i32 {
+        let handle = tokio::spawn(async move {
+            for _ in 0..10000i32 {
                 schema
-                    .query(
+                    .execute(
                         r#"
             {
                 valueI32 obj {
@@ -84,7 +83,6 @@ pub async fn run() {
                 }
             }"#,
                     )
-                    .execute()
                     .await
                     .unwrap();
             }
