@@ -1,4 +1,5 @@
 use async_graphql::*;
+use async_std::task;
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -44,7 +45,7 @@ pub async fn run() {
 
     for _ in 0..4 {
         let schema = schema.clone();
-        let handle = tokio::spawn(async move {
+        let handle = task::spawn(async move {
             for _ in 0..10000i32 {
                 schema
                     .execute(
