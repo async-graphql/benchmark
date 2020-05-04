@@ -1,6 +1,5 @@
 use async_graphql::*;
 use async_std::task;
-use std::sync::Arc;
 use std::time::Instant;
 
 pub struct QueryRoot;
@@ -40,7 +39,7 @@ impl MyObj {
 
 pub async fn run() {
     let s = Instant::now();
-    let schema = Arc::new(Schema::new(QueryRoot, EmptyMutation, EmptySubscription));
+    let schema = Schema::new(QueryRoot, EmptyMutation, EmptySubscription);
     let mut jobs = Vec::new();
 
     for _ in 0..4 {
