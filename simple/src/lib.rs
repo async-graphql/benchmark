@@ -1,6 +1,5 @@
 use async_graphql::*;
 use async_std::task;
-use std::time::Instant;
 
 pub struct QueryRoot;
 
@@ -37,20 +36,11 @@ impl MyObj {
     }
 }
 
-pub async fn run() {
-    let s = Instant::now();
-    let schema = Schema::new(QueryRoot, EmptyMutation, EmptySubscription);
-    let mut jobs = Vec::new();
-
-    for _ in 0..4 {
-        let schema = schema.clone();
-        let handle = task::spawn(async move {
-            for _ in 0..10000i32 {
-                schema
-                    .execute(
-                        r#"
-            {
-                valueI32 obj {
+const Q: &str = r#"{
+    valueI32 obj {
+        valueI32 valueList obj {
+            valueI32 valueList obj {
+                valueI32 valueList obj {
                     valueI32 valueList obj {
                         valueI32 valueList obj {
                             valueI32 valueList obj {
@@ -62,13 +52,7 @@ pub async fn run() {
                                                     valueI32 valueList obj {
                                                         valueI32 valueList obj {
                                                             valueI32 valueList obj {
-                                                                valueI32 valueList obj {
-                                                                    valueI32 valueList obj {
-                                                                        valueI32 valueList obj {
-                                                                            valueI32 valueList
-                                                                        }
-                                                                    }
-                                                                }
+                                                                valueI32 valueList
                                                             }
                                                         }
                                                     }
@@ -81,17 +65,17 @@ pub async fn run() {
                         }
                     }
                 }
-            }"#,
-                    )
-                    .await
-                    .unwrap();
             }
-        });
-        jobs.push(handle);
+        }
     }
-    for i in 0..4 {
-        jobs.get_mut(i).unwrap().await;
-    }
+}"#;
 
-    println!("async-graphql: {} ms", s.elapsed().as_millis());
+lazy_static::lazy_static! {
+    static ref S: Schema<QueryRoot, EmptyMutation, EmptySubscription> = Schema::new(QueryRoot, EmptyMutation, EmptySubscription);
+}
+
+pub fn run() {
+    task::block_on(async {
+        S.execute(Q).await.unwrap();
+    });
 }
