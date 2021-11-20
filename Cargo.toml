@@ -5,9 +5,7 @@ authors = ["sunli <scott_s829@163.com>"]
 edition = "2018"
 
 [dependencies]
-async-graphql = "2.4.5"
-async-std = { version = "1.8.0", features = ["attributes"] }
-juniper = "0.15.1"
-futures = "0.3.8"
-serde_json = "1.0.61"
+async-graphql = "3.0.5"
+tokio = { version = "1.14.0", features = ["macros", "rt-multi-thread"] }
+juniper = "0.15.7"
 lazy_static = "1.4.0"
